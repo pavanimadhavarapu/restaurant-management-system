@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_NAMESPACE = "pavanimadhavarapu"
         IMAGE_NAME = "${DOCKERHUB_NAMESPACE}/restaurant-management-system"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKERHUB_CRED = "dockerhub-credentials-id"
+        DOCKERHUB_CRED = "dockerhub-credentials-rms"   // updated ID
     }
     stages {
         stage('Checkout') {
