@@ -1,14 +1,16 @@
-FROM python:3.9-slim
+FROM node:18
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY package*.json ./
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN npm install
 
-COPY . /app/
+COPY . .
 
-EXPOSE 8000
+RUN if [ -d "client" ]; then cd client && npm install && npm run build && cd ..; fi
 
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+EXPOSE 3000
+
+CMD ["npm", "start"]
 

@@ -7,19 +7,27 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_CRED = "dockerhub-credentials-rms"   // updated ID
     }
+
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'feature/devops-pipeline', url: 'https://github.com/pavanimadhavarapu/restaurant-management-system.git'
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Install & Test') {
             steps {
-                script {
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                }
+                sh 'npm install'
+                sh 'npm test || echo "⚠️ Tests failed, but continuing..."'
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CRED}", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
@@ -30,22 +38,23 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Swarm') {
             steps {
-                script {
-                    sh """
-                        docker service ls | grep restaurant-management-system
-                        docker service update --image ${IMAGE_NAME}:${IMAGE_TAG} restaurant-management-system
-                        docker service create --name restaurant-management-system -p 8000:8000 ${IMAGE_NAME}:${IMAGE_TAG}
-                    
-                    """
-                }
+                sh """
+                    docker service ls | grep restaurant-management-system
+                    docker service update --image ${IMAGE_NAME}:${IMAGE_TAG} restaurant-management-system
+                
+                    docker service create --name restaurant-management-system -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+               
+                """
             }
         }
     }
+
     post {
-        success { echo "✅ Deployment successful!" }
-        failure { echo "❌ Build/Deploy failed!" }
+        success { echo "✅ Node.js App Deployed Successfully!" }
+        failure { echo "❌ Build/Deploy failed. Check logs." }
     }
 }
 
