@@ -2,7 +2,7 @@ FROM node:18-slim
 
 WORKDIR /app
 
-COPY package*.json first for caching
+COPY package*.json ./
 
 RUN npm install
 
