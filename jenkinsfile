@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "pavanimadhavarapu/restaurant-management-system"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -19,14 +23,26 @@ pipeline {
                 '''
             }
         }
+
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        def app = docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}")
+                        app.push()
+                        app.push("latest")
+                    }
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Code build/test success! Now run Docker build & deploy manually in MobaXterm 🚀"
+            echo "✅ Code tested & Docker image pushed to Docker Hub 🚀"
         }
         failure {
-            echo "❌ Build failed! Check errors above."
+            echo "❌ Build failed! Check logs."
         }
     }
 }
