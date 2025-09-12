@@ -48,7 +48,7 @@ pipeline {
                     echo "🚀 Running container locally for verification"
                     docker stop restaurant-container || true
                     docker rm restaurant-container || true
-                    docker run -d --name restaurant-container -p 8080:80 ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    docker run -d --name restaurant-container -p 8088:80 ${DOCKER_IMAGE}:${BUILD_NUMBER}
                 '''
             }
         }
