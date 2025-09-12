@@ -13,6 +13,12 @@ pipeline {
         }
 
         stage('Install & Test') {
+            agent {
+                docker {
+                    image 'node:18'      // Node.js container
+                    args '-u root:root' // run as root
+                }
+            }
             steps {
                 sh '''
                     echo "📦 Installing dependencies"
@@ -50,10 +56,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Code tested & Docker image pushed to Docker Hub 🚀"
+            echo "✅ Build Success: Image pushed to Docker Hub 🚀"
         }
         failure {
-            echo "❌ Build failed! Check logs."
+            echo "❌ Build Failed! Check Jenkins logs."
         }
     }
 }
